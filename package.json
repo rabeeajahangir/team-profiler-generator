@@ -1,0 +1,26 @@
+{
+  "name": "team-profiler-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "jest": "^27.0.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rabeeajahangir/team-profiler-generator.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rabeeajahangir/team-profiler-generator/issues"
+  },
+  "homepage": "https://github.com/rabeeajahangir/team-profiler-generator#readme"
+}
