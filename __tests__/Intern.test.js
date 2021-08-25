@@ -2,11 +2,11 @@ const { TestScheduler } = require('@jest/core');
 
 const Intern = require('../lib/Intern');
 
-const testName = 'Suzie';
+const testName = 'MohsinCh';
 const testRole = 'intern';
 const testId = Number(27)
-const testEmail = 'suzie@company.com';
-const testSchool = 'University of Texas'
+const testEmail = 'mohsinch@gmail.com';
+const testSchool = 'University of California'
 
 test('create intern object', () => {
     const intern = new Intern(testName, testRole, testId)
