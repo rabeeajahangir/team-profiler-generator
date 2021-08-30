@@ -1,19 +1,24 @@
 const inquirer = require('inquirer');
-const Employee = require('./lib/Employee');
-const pageTemplate = require('./src/page-template.js');
-const generateProfile = require('./utils/generate-site.js');
+const fs = require('fs');
 
-const internArr = [];
-const managerArr = [];
-const engineerArr = [];
+const Intern = require('./lib/Intern')
+const Manager = require('./lib/Manager')
+const Engineer = require('./lib/Engineer')
+
+const generateHTML = require('./src/page-template')
+const {
+    writeFile,
+    copyFile
+} = require("./utils/generate-site");
+
 const newEmployeeArr = [];
+
 
 const addEmployee = () => {
     console.log('=== === ===')
     console.log('Team Profile Builder')
     console.log('=== === ===')
-    inquirer.prompt([
-        {
+    return inquirer.prompt([{
             name: 'name',
             type: 'input',
             message: 'Name: ',
@@ -30,10 +35,13 @@ const addEmployee = () => {
             type: 'input',
             message: 'ID: ',
             validate: idInput => {
-                if (idInput) {
+                const verify = idInput.match(
+                    /^[0-9]\d*$/
+                )
+                if (verify) {
                     return true
                 } else {
-                    console.log('Please provide ID.')
+                    console.log(`\nEnter a valid ID.`)
                     return false
                 }
             }
@@ -42,109 +50,146 @@ const addEmployee = () => {
             type: 'input',
             message: 'Email address: ',
             validate: emailInput => {
-                if (emailInput) {
+                const verify = emailInput.match(
+                    /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
+                );
+                if (verify) {
                     return true
                 } else {
-                    console.log('Please provide a valid email address.')
+                    console.log(`\nEnter a valid email address.`)
                     return false
                 }
             }
         }, {
             name: 'role',
             type: 'list',
-            message: 'What role would you like to assign employee to?',
+            message: 'Which role is this employee?',
             choices: ['Intern', 'Manager', 'Engineer']
         }])
         .then(employeeDataObj => {
-            console.log(employeeDataObj)
-            const {name, id, email, role} = employeeDataObj
+            const {
+                name,
+                id,
+                email,
+                role
+            } = employeeDataObj
+            if (role === 'Intern') {
+                return inquirer.prompt({
+                    name: 'school',
+                    type: 'input',
+                    message: `Which school did ${name} attend?`
+                }).then(school => {
+                    school = school.school
+                    this.school = school
 
-            if(role === 'Intern') {
-                addIntern(employeeDataObj)
-            }
-            if(role === 'Manager') {
-                addManager(employeeDataObj)
-            }
-            if(role === 'Engineer') {
-                addEngineer(employeeDataObj)
-            }
-        })
-        .catch(err => {
-            if(err) throw err;
-        })
-    };
+                    const intern = new Intern(name, id, email, school)
+                    newEmployeeArr.push(intern)
 
-const addIntern = employeeDataObj => {
-    inquirer.prompt({
-        name: 'school',
-        type: 'input',
-        message: `Which school did ${employeeDataObj.name} attend?`
-    }).then(school => {
-        employeeDataObj.school = school
-        internArr.push(employeeDataObj)
+                    return inquirer.prompt({
+                        name: 'confirmAddEmployee',
+                        type: 'confirm',
+                        message: 'Would you like to add another employee?',
+                        default: false
+                    }).then(confirmAdd => {
+                        console.log(confirmAdd)
+                        confirmAdd.value = Object.values(confirmAdd)
+                        if (confirmAdd.value[0] === true) {
+                            return addEmployee();
+                        } else {
+                            return newEmployeeArr
+                        }
+                    })
+                })
+            }
 
-        inquirer.prompt({
-            name: 'confirmAddEmployee',
-            type: 'confirm',
-            message: 'Would you like to add another employee?',
-        })
-        .then(employeeDataObj => {
-            if(employeeDataObj.confirmAddEmployee) {
-                return addEmployee(employeeDataObj);
+            if (role === 'Manager') {
+                return inquirer.prompt({
+                    name: 'officeNumber',
+                    type: 'input',
+                    message: `What is ${name}'s office phone number?`,
+                    validate: phoneInput => {
+                        const verify = phoneInput.match(
+                            /^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/
+                        );
+                        if (verify) {
+                            return true
+                        } else {
+                            console.log(`\nEnter a valid phone number.`)
+                            return false
+                        }
+                    }
+                }).then(officeNumber => {
+                    officeNumber = officeNumber.officeNumber
+                    this.officeNumber = officeNumber
+
+                    const manager = new Manager(name, id, email, officeNumber)
+                    newEmployeeArr.push(manager)
+
+                    return inquirer.prompt({
+                        name: 'confirmAddEmployee',
+                        type: 'confirm',
+                        message: 'Would you like to add another employee?',
+                        default: false
+                    }).then(confirmAdd => {
+                        confirmAdd.value = Object.values(confirmAdd)
+                        if (confirmAdd.value[0] === true) {
+                            return addEmployee();
+                        } else {
+                            return newEmployeeArr
+                        }
+
+                    })
+                })
+            }
+            if (role === 'Engineer') {
+                return inquirer.prompt({
+                    name: 'github',
+                    type: 'input',
+                    message: `What is ${name}'s GitHub username?`
+                }).then(github => {
+                    github = github.github
+                    this.github = github
+
+                    const engineer = new Engineer(name, id, email, github)
+                    newEmployeeArr.push(engineer)
+
+                    return inquirer.prompt({
+                        name: 'confirmAddEmployee',
+                        type: 'confirm',
+                        message: 'Would you like to add another employee?',
+                        default: false
+                    }).then(confirmAdd => {
+                        confirmAdd.value = Object.values(confirmAdd)
+                        if (confirmAdd.value[0] === true) {
+                            return addEmployee();
+                        } else {
+                            return newEmployeeArr
+                        }
+                    })
+                })
             } else {
-                return employeeDataObj
+                return console.error(err);
             }
+
         })
-    })
 }
 
-const addManager = employeeDataObj => {
-    inquirer.prompt({
-        name: 'officeNumber',
-        type: 'input',
-        message: `What is ${employeeDataObj.name}'s office phone number?`
-    }).then(officeNumber => {
-        employeeDataObj.officeNumber = officeNumber
-        managerArr.push(employeeDataObj)
 
-        inquirer.prompt({
-            name: 'confirmAddEmployee',
-            type: 'confirm',
-            message: 'Would you like to add another employee?',
-        })
-        .then(employeeDataObj => {
-            if(employeeDataObj.confirmAddEmployee) {
-                return addEmployee(employeeDataObj);
-            } else {
-                return employeeDataObj
-            }
-        })
+
+addEmployee()
+    .then(newEmployeeArr => {
+        return generateHTML(newEmployeeArr)
     })
-}
-
-const addEngineer = employeeDataObj => {
-
-    inquirer.prompt({
-        name: 'github',
-        type: 'input',
-        message: `What is ${employeeDataObj.name}'s GitHub username?`
-    }).then(github => {
-        employeeDataObj.github = github
-        engineerArr.push(employeeDataObj)
-
-        inquirer.prompt({
-            name: 'confirmAddEmployee',
-            type: 'confirm',
-            message: 'Would you like to add another employee?',
-        })
-        .then(employeeDataObj => {
-            if(employeeDataObj.confirmAddEmployee) {
-                return addEmployee(employeeDataObj);
-            } else {
-                return employeeDataObj
-            }
-        })
+    .then(pageHTML => {
+        return (writeFile(pageHTML))
     })
-}
-
-addEmployee() 
+    .then(writeFileResp => {
+        console.log(writeFileResp);
+        return copyFile();
+    })
+    .then(copyFileResp => {
+        console.log(copyFileResp);
+    })
+    .catch(err => {
+        console.log(err)
+    })
