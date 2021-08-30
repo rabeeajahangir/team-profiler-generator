@@ -1,11 +1,12 @@
 const inquirer = require('inquirer');
 const Employee = require('./lib/Employee');
 const pageTemplate = require('./src/page-template.js');
-const {writeFile, copyFile} = require('./utils/generate-site.js');
+const generateProfile = require('./utils/generate-site.js');
 
 const internArr = [];
 const managerArr = [];
 const engineerArr = [];
+const newEmployeeArr = [];
 
 const addEmployee = () => {
     console.log('=== === ===')
