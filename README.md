@@ -14,4 +14,4 @@ To use the application, make sure that you are in the root of the application, t
 <img width="1440" alt="Screen Shot 2021-08-30 at 8 04 59 PM" src="https://user-images.githubusercontent.com/69980221/131421073-35c4753e-f625-46c0-a207-8f937be0aa52.png">
 
 ## Contributions:
-This project was created by Rabeea Jahangir. [GitHub](www.github.com/rabeeajahangir)
+This project was created by Rabeea Jahangir. [GitHub](https://github.com/rabeeajahangir)
